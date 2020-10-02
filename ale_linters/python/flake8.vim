@@ -60,7 +60,17 @@ function! ale_linters#python#flake8#GetCdString(buffer) abort
 endfunction
 
 function! ale_linters#python#flake8#GetCommand(buffer, version) abort
-    let l:cd_string = ale_linters#python#flake8#GetCdString(a:buffer)
+    let l:cd_string = ''
+
+    if ale#Var(a:buffer, 'python_flake8_change_directory')
+        " pylint only checks for pylintrc in the packages above its current
+        " directory before falling back to user and global pylintrc.
+        " Run from project root, if found, otherwise buffer dir.
+        let l:project_root = ale#python#FindProjectRoot(a:buffer)
+        let l:cd_string = l:project_root isnot# ''
+        \   ? ale#path#CdString(l:project_root)
+        \   : ale#path#BufferCdString(a:buffer)
+    endif
 
     let l:executable = ale_linters#python#flake8#GetExecutable(a:buffer)
 
