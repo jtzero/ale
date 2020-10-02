@@ -36,7 +36,18 @@ function! s:GetDir(buffer) abort
 endfunction
 
 function! ale_linters#python#mypy#GetCommand(buffer) abort
-    let l:dir = s:GetDir(a:buffer)
+    let l:cd_string = ''
+
+    if ale#Var(a:buffer, 'python_mypy_change_directory')
+        " pylint only checks for pylintrc in the packages above its current
+        " directory before falling back to user and global pylintrc.
+        " Run from project root, if found, otherwise buffer dir.
+        let l:project_root = ale#python#FindProjectRoot(a:buffer)
+        let l:cd_string = l:project_root isnot# ''
+        \   ? ale#path#CdString(l:project_root)
+        \   : ale#path#BufferCdString(a:buffer)
+    endif
+
     let l:executable = ale_linters#python#mypy#GetExecutable(a:buffer)
 
     let l:exec_args = l:executable =~? 'pipenv$'
@@ -45,7 +56,7 @@ function! ale_linters#python#mypy#GetCommand(buffer) abort
 
     " We have to always switch to an explicit directory for a command so
     " we can know with certainty the base path for the 'filename' keys below.
-    return ale#path#CdString(l:dir)
+    return l:cd_string
     \   . ale#Escape(l:executable) . l:exec_args
     \   . ' --show-column-numbers '
     \   . ale#Var(a:buffer, 'python_mypy_options')
