@@ -4,6 +4,7 @@
 call ale#Set('terraform_terraform_executable', 'terraform')
 call ale#Set('terraform_ls_executable', 'terraform-ls')
 call ale#Set('terraform_ls_options', '')
+call ale#Set('terraform_ls_options', { 'strip': true })
 
 function! ale_linters#terraform#terraform_ls#GetTerraformExecutable(buffer) abort
     let l:terraform_executable = ale#Var(a:buffer, 'terraform_terraform_executable')
