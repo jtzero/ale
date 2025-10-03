@@ -14,7 +14,9 @@ let s:cursor_timer = -1
 function! ale#cursor#Echom(message) abort
     if mode() is# 'n'
         " no-custom-checks
-        exec "norm! :echom a:message\n"
+        "exec "norm! :echom a:message\n"
+        " TODO remove norm! to prevent LazyVim from picking up on it
+        exec ":echom a:message\n"
     endif
 endfunction
 
